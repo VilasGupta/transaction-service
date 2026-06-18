@@ -5,6 +5,7 @@ import (
 	"net/http"
 )
 
+// errorResponse is the standard JSON error body returned by all endpoints.
 type errorResponse struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`

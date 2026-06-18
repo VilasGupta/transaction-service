@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS accounts (
     account_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    document_number VARCHAR(20) NOT NULL
+    document_number VARCHAR(20) NOT NULL UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS operation_types (

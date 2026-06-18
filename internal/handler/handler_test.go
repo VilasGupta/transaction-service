@@ -74,6 +74,15 @@ func TestCreateAccount(t *testing.T) {
 			wantErrMsg: "invalid request body",
 		},
 		{
+			name: "duplicate document_number returns existing account",
+			body: `{"document_number": "12345678900"}`,
+			mockFn: func(_ context.Context, _ string) (model.Account, error) {
+				return model.Account{AccountID: 1, DocumentNumber: "12345678900"}, store.ErrDuplicate
+			},
+			wantStatus:  http.StatusOK,
+			wantAccount: &model.Account{AccountID: 1, DocumentNumber: "12345678900"},
+		},
+		{
 			name: "store error",
 			body: `{"document_number": "12345678900"}`,
 			mockFn: func(_ context.Context, _ string) (model.Account, error) {

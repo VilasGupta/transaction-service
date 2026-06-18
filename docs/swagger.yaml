@@ -1,0 +1,153 @@
+basePath: /
+definitions:
+  handler.errorResponse:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+  model.Account:
+    properties:
+      account_id:
+        type: integer
+      document_number:
+        type: string
+    type: object
+  model.CreateAccountRequest:
+    properties:
+      document_number:
+        type: string
+    type: object
+  model.CreateTransactionRequest:
+    properties:
+      account_id:
+        type: integer
+      amount:
+        type: number
+      operation_type_id:
+        type: integer
+    type: object
+  model.Transaction:
+    properties:
+      account_id:
+        type: integer
+      amount:
+        type: number
+      event_date:
+        type: string
+      operation_type_id:
+        type: integer
+      transaction_id:
+        type: integer
+    type: object
+host: localhost:3000
+info:
+  contact: {}
+  description: REST API for managing cardholder accounts and financial transactions.
+  title: Transaction Service API
+  version: "1.0"
+paths:
+  /accounts:
+    post:
+      consumes:
+      - application/json
+      description: Create a new cardholder account with a document number. Returns
+        the existing account with 200 if the document number already exists (idempotent).
+      parameters:
+      - description: Account creation payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateAccountRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Account already exists
+          schema:
+            $ref: '#/definitions/model.Account'
+        "201":
+          description: Account created
+          schema:
+            $ref: '#/definitions/model.Account'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Create account
+      tags:
+      - accounts
+  /accounts/{accountId}:
+    get:
+      description: Retrieve account details by account ID
+      parameters:
+      - description: Account ID
+        in: path
+        name: accountId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Account'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Get account
+      tags:
+      - accounts
+  /transactions:
+    post:
+      consumes:
+      - application/json
+      description: 'Create a financial transaction for an account. Amount must be
+        positive; the service applies the correct sign based on operation type (1:
+        Normal Purchase, 2: Purchase with installments, 3: Withdrawal, 4: Credit Voucher).'
+      parameters:
+      - description: Transaction creation payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateTransactionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Transaction'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.errorResponse'
+      summary: Create transaction
+      tags:
+      - transactions
+swagger: "2.0"

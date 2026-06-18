@@ -37,6 +37,7 @@ type CreateTransactionRequest struct {
 	Amount          decimal.Decimal `json:"amount"`
 }
 
+// operationTypeSigns maps each operation type to its sign multiplier: purchases and withdrawals are negative, credit vouchers are positive.
 var operationTypeSigns = map[int]decimal.Decimal{
 	OperationNormalPurchase:      decimal.NewFromInt(-1),
 	OperationPurchaseInstallment: decimal.NewFromInt(-1),
@@ -44,6 +45,7 @@ var operationTypeSigns = map[int]decimal.Decimal{
 	OperationCreditVoucher:       decimal.NewFromInt(1),
 }
 
+// ApplySign forces the correct sign on amount based on operation type. Always uses the absolute value of amount to prevent double-negation.
 func ApplySign(operationTypeID int, amount decimal.Decimal) (decimal.Decimal, error) {
 	sign, ok := operationTypeSigns[operationTypeID]
 	if !ok {
