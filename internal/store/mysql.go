@@ -109,20 +109,20 @@ func (s *MySQLStore) CreateTransaction(ctx context.Context, accountID int64, ope
 		dischargeTransactions.Close()
 
 		for _, dischargeTransaction := range pending {
-			var newBalance decimal.Decimal
+			if paymentBalance.IsZero() {
+				break
+			}
+
 			var dischargeBalance decimal.Decimal
 
 			//fully able to discharge the transaction
-			if amount.IsPositive() {
-				if amount.GreaterThan(dischargeTransaction.Balance.Abs()) { //60 > 50
-					newBalance = dischargeTransaction.Balance.Add(amount) // -10
-					paymentBalance = newBalance.Abs()                     //10
-					dischargeBalance = decimal.Zero                       //0
-				} else {
-					newBalance = dischargeTransaction.Balance.Add(paymentBalance) //-23.5 + 10 = 13.5
-					paymentBalance = decimal.Zero                                 //0
-					dischargeBalance = newBalance                                 //-13
-				}
+			if paymentBalance.GreaterThan(dischargeTransaction.Balance.Abs()) { //60 > 50
+				newBalance := dischargeTransaction.Balance.Add(paymentBalance) // -50 + 60 = 10
+				paymentBalance = newBalance                                    //10 remaining to apply to next row
+				dischargeBalance = decimal.Zero                                //0, fully paid off
+			} else {
+				dischargeBalance = dischargeTransaction.Balance.Add(paymentBalance) //-23.5 + 10 = -13.5
+				paymentBalance = decimal.Zero                                       //0, fully consumed
 			}
 
 			_, err = dbTx.ExecContext(ctx, "UPDATE transactions set balance = ? where transaction_id = ?", dischargeBalance, dischargeTransaction.TransactionID)
