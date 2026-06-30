@@ -5,9 +5,9 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/shopspring/decimal"
 	"github.com/VilasGupta/transaction-service/internal/model"
 	"github.com/VilasGupta/transaction-service/internal/store"
+	"github.com/shopspring/decimal"
 )
 
 // CreateTransaction creates a new transaction.
@@ -62,7 +62,7 @@ func (h *Handler) CreateTransaction(w http.ResponseWriter, r *http.Request) {
 	// Persist transaction with the signed amount
 	tx, err := h.store.CreateTransaction(r.Context(), req.AccountID, req.OperationTypeID, signedAmount)
 	if err != nil {
-		respondError(w, http.StatusInternalServerError, "failed to create transaction")
+		respondError(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 

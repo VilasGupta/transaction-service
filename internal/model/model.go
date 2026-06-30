@@ -24,6 +24,7 @@ type Transaction struct {
 	AccountID       int64           `json:"account_id"`
 	OperationTypeID int             `json:"operation_type_id"`
 	Amount          decimal.Decimal `json:"amount"`
+	Balance         decimal.Decimal `json:"balance"`
 	EventDate       time.Time       `json:"event_date"`
 }
 
